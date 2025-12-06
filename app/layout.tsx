@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/components/query-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -73,7 +74,8 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <SessionProvider initialSession={null}>
-          <ThemeProvider
+          <QueryProvider>
+            <ThemeProvider
             attribute="class"
             defaultTheme="system"
             disableTransitionOnChange
@@ -81,7 +83,8 @@ export default function RootLayout({
           >
             <Toaster position="top-center" />
             {children}
-          </ThemeProvider>
+            </ThemeProvider>
+          </QueryProvider>
         </SessionProvider>
       </body>
     </html>

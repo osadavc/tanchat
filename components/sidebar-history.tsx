@@ -1,11 +1,11 @@
 "use client";
 
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
 import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import useSWRInfinite from "swr/infinite";
 import type { User } from "@/app/(auth)/auth";
 import {
   AlertDialog,
@@ -24,6 +24,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { Chat } from "@/lib/db/schema";
+import { queryKeys } from "@/lib/query-keys";
 import { fetcher } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
 import { ChatItem } from "./sidebar-history-item";
@@ -76,44 +77,42 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
   );
 };
 
-export function getChatHistoryPaginationKey(
-  pageIndex: number,
-  previousPageData: ChatHistory
-) {
-  if (previousPageData && previousPageData.hasMore === false) {
-    return null;
-  }
-
-  if (pageIndex === 0) {
-    return `/api/history?limit=${PAGE_SIZE}`;
-  }
-
-  const firstChatFromPage = previousPageData.chats.at(-1);
-
-  if (!firstChatFromPage) {
-    return null;
-  }
-
-  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
-}
-
 export function SidebarHistory({ user }: { user: User | undefined }) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
+  const queryClient = useQueryClient();
 
   const {
-    data: paginatedChatHistories,
-    setSize,
-    isValidating,
+    data,
+    fetchNextPage,
+    isFetching,
     isLoading,
-    mutate,
-  } = useSWRInfinite<ChatHistory>(getChatHistoryPaginationKey, fetcher, {
-    fallbackData: [],
+  } = useInfiniteQuery<ChatHistory>({
+    queryKey: queryKeys.chatHistory,
+    queryFn: async ({ pageParam }) => {
+      if (!pageParam) {
+        return fetcher(`/api/history?limit=${PAGE_SIZE}`);
+      }
+      return fetcher(
+        `/api/history?ending_before=${pageParam}&limit=${PAGE_SIZE}`
+      );
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.chats.length === 0 || lastPage.hasMore === false) {
+        return null;
+      }
+      const lastChat = lastPage.chats.at(-1);
+      return lastChat ? lastChat.id : null;
+    },
   });
 
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Flatten pages to get all chats
+  const paginatedChatHistories = data?.pages;
 
   const hasReachedEnd = paginatedChatHistories
     ? paginatedChatHistories.some((page) => page.hasMore === false)
@@ -131,13 +130,19 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     toast.promise(deletePromise, {
       loading: "Deleting chat...",
       success: () => {
-        mutate((chatHistories) => {
-          if (chatHistories) {
-            return chatHistories.map((chatHistory) => ({
-              ...chatHistory,
-              chats: chatHistory.chats.filter((chat) => chat.id !== deleteId),
-            }));
-          }
+        queryClient.setQueryData<{
+          pages: ChatHistory[];
+          pageParams: unknown[];
+        }>(queryKeys.chatHistory, (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              chats: page.chats.filter((chat) => chat.id !== deleteId),
+            })),
+          };
         });
 
         return "Chat deleted successfully";
@@ -326,8 +331,8 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
           <motion.div
             onViewportEnter={() => {
-              if (!isValidating && !hasReachedEnd) {
-                setSize((size) => size + 1);
+              if (!isFetching && !hasReachedEnd) {
+                fetchNextPage();
               }
             }}
           />

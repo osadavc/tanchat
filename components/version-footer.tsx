@@ -1,12 +1,13 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { isAfter } from "date-fns";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useSWRConfig } from "swr";
 import { useWindowSize } from "usehooks-ts";
 import { useArtifact } from "@/hooks/use-artifact";
 import type { Document } from "@/lib/db/schema";
+import { queryKeys } from "@/lib/query-keys";
 import { getDocumentTimestampByIndex } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
 import { Button } from "./ui/button";
@@ -27,7 +28,7 @@ export const VersionFooter = ({
   const { width } = useWindowSize();
   const isMobile = width < 768;
 
-  const { mutate } = useSWRConfig();
+  const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
 
   if (!documents) {
@@ -55,35 +56,42 @@ export const VersionFooter = ({
           onClick={async () => {
             setIsMutating(true);
 
-            mutate(
-              `/api/document?id=${artifact.documentId}`,
+            const timestamp = getDocumentTimestampByIndex(
+              documents,
+              currentVersionIndex
+            );
+            
+            const queryKey = queryKeys.documents(artifact.documentId);
+
+            // Optimistic update
+            queryClient.setQueryData<Document[]>(queryKey, (oldDocuments) => {
+                if (!oldDocuments) return [];
+                return [
+                  ...oldDocuments.filter((document) =>
+                    isAfter(
+                      new Date(document.createdAt),
+                      new Date(timestamp)
+                    )
+                  ),
+                ];
+            });
+
+            try {
               await fetch(
-                `/api/document?id=${artifact.documentId}&timestamp=${getDocumentTimestampByIndex(
-                  documents,
-                  currentVersionIndex
-                )}`,
+                `/api/document?id=${artifact.documentId}&timestamp=${timestamp}`,
                 {
                   method: "DELETE",
                 }
-              ),
-              {
-                optimisticData: documents
-                  ? [
-                      ...documents.filter((document) =>
-                        isAfter(
-                          new Date(document.createdAt),
-                          new Date(
-                            getDocumentTimestampByIndex(
-                              documents,
-                              currentVersionIndex
-                            )
-                          )
-                        )
-                      ),
-                    ]
-                  : [],
-              }
-            );
+              );
+              
+              // Invalidate to ensure consistency
+              queryClient.invalidateQueries({ queryKey });
+            } catch (error) {
+              // Revert or handle error - for now we just invalidate
+               queryClient.invalidateQueries({ queryKey });
+            } finally {
+               setIsMutating(false);
+            }
           }}
         >
           <div>Restore this version</div>

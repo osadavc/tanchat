@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import equal from "fast-deep-equal";
 import {
   type MouseEvent,
@@ -9,9 +10,9 @@ import {
   useMemo,
   useRef,
 } from "react";
-import useSWR from "swr";
 import { useArtifact } from "@/hooks/use-artifact";
 import type { Document } from "@/lib/db/schema";
+import { queryKeys } from "@/lib/query-keys";
 import { cn, fetcher } from "@/lib/utils";
 import type { ArtifactKind, UIArtifact } from "./artifact";
 import { CodeEditor } from "./code-editor";
@@ -35,9 +36,13 @@ export function DocumentPreview({
 }: DocumentPreviewProps) {
   const { artifact, setArtifact } = useArtifact();
 
-  const { data: documents, isLoading: isDocumentsFetching } = useSWR<
+  const { data: documents, isLoading: isDocumentsFetching } = useQuery<
     Document[]
-  >(result ? `/api/document?id=${result.id}` : null, fetcher);
+  >({
+    queryKey: queryKeys.documents(result ? result.id : ""),
+    queryFn: () => fetcher(`/api/document?id=${result.id}`),
+    enabled: !!result,
+  });
 
   const previewDocument = useMemo(() => documents?.[0], [documents]);
   const hitboxRef = useRef<HTMLDivElement>(null);
