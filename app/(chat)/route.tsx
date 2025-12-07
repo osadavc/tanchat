@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { DataStreamProvider } from "@/components/data-stream-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { auth } from "../(auth)/auth";
+import { auth } from "../(auth)/-utils/auth";
 
 const loader = createServerFn().handler(async () => {
   const [session, sidebarState] = await Promise.all([

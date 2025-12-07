@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { put } from "@vercel/blob";
 import { z } from "zod";
 
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({

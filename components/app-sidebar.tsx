@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { User } from "@/app/(auth)/auth";
+import type { User } from "@/app/(auth)/-utils/auth";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { SidebarHistory } from "@/components/sidebar-history";
 import { SidebarUserNav } from "@/components/sidebar-user-nav";

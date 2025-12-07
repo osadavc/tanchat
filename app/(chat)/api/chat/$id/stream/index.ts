@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createUIMessageStream, JsonToSseTransformStream } from "ai";
 import { differenceInSeconds } from "date-fns";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import {
   getChatById,
   getMessagesByChatId,

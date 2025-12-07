@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo } from "react";
-import { updateChatVisibility } from "@/app/(chat)/actions";
+import { updateChatVisibility } from "@/app/(chat)/-utils/actions";
 import type { ChatHistory } from "@/components/sidebar-history";
 import type { VisibilityType } from "@/components/visibility-selector";
 import { queryKeys } from "@/lib/query-keys";

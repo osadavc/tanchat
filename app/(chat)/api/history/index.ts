@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import { deleteAllChatsByUserId, getChatsByUserId } from "@/lib/db/queries";
 import { ChatSDKError } from "@/lib/errors";
 

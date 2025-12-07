@@ -5,8 +5,8 @@ import { SubmitButton } from "@/components/submit-button";
 import { toast } from "@/components/toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginFn } from "../actions";
-import { authFormSchema } from "../validation";
+import { loginFn } from "../-utils/actions";
+import { authFormSchema } from "../-utils/validation";
 
 export const Route = createFileRoute("/(auth)/login/")({
   component: Page,

@@ -15,8 +15,8 @@ import {
 import type { ModelCatalog } from "tokenlens/core";
 import { fetchModels } from "tokenlens/fetch";
 import { getUsage } from "tokenlens/helpers";
-import type { UserType } from "@/app/(auth)/auth";
-import { auth } from "@/app/(auth)/auth";
+import type { UserType } from "@/app/(auth)/-utils/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import type { VisibilityType } from "@/components/visibility-selector";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import type { ChatModel } from "@/lib/ai/models";
@@ -42,7 +42,7 @@ import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
 import type { AppUsage } from "@/lib/usage";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
-import { generateTitleFromUserMessage } from "../../actions";
+import { generateTitleFromUserMessage } from "../../-utils/actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
 let globalStreamContext: ResumableStreamContext | null = null;

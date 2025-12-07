@@ -1,5 +1,5 @@
 import type { UIMessageStreamWriter } from "ai";
-import type { Session } from "@/app/(auth)/auth";
+import type { Session } from "@/app/(auth)/-utils/auth";
 import { codeDocumentHandler } from "@/artifacts/code/server";
 import { sheetDocumentHandler } from "@/artifacts/sheet/server";
 import { textDocumentHandler } from "@/artifacts/text/server";

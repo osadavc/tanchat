@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { APIError } from "better-auth/api";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import { generateUUID } from "@/lib/utils";
 
 export const Route = createFileRoute("/(auth)/api/auth/guest/")({

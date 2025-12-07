@@ -4,7 +4,7 @@ import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { User } from "@/app/(auth)/auth";
+import type { User } from "@/app/(auth)/-utils/auth";
 import {
   AlertDialog,
   AlertDialogAction,

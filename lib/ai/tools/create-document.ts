@@ -1,6 +1,6 @@
 import { tool, type UIMessageStreamWriter } from "ai";
 import { z } from "zod";
-import type { Session } from "@/app/(auth)/auth";
+import type { Session } from "@/app/(auth)/-utils/auth";
 import {
   artifactKinds,
   documentHandlersByArtifactKind,

@@ -1,6 +1,5 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-import type { Session } from "@/app/(auth)/auth";
+import type { Session } from "@/app/(auth)/-utils/auth";
 import { authClient } from "@/lib/auth-client";
 
 type SessionContextType = {

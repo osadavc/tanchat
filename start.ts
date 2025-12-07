@@ -1,5 +1,5 @@
 import { createMiddleware, createStart } from "@tanstack/react-start";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import { guestRegex } from "@/lib/constants";
 
 const authMiddleware = createMiddleware().server(

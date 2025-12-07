@@ -1,9 +1,7 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getRequestHeaders } from "@tanstack/react-start/server";
-import { Suspense } from "react";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/app/(auth)/-utils/auth";
 import { Chat } from "@/components/chat";
 import { DataStreamHandler } from "@/components/data-stream-handler";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
@@ -11,13 +9,13 @@ import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
 import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages } from "@/lib/utils";
 
-const loader = createServerFn()
+const fetchChatData = createServerFn()
   .inputValidator((data: { chatId: string }) => data)
   .handler(async ({ data: { chatId } }) => {
     const chat = await getChatById({ id: chatId });
 
     if (!chat) {
-      throw notFound();
+      return { notFound: true as const };
     }
 
     const session = await auth.api.getSession({
@@ -25,16 +23,16 @@ const loader = createServerFn()
     });
 
     if (!session) {
-      throw redirect({ to: "/api/auth/guest" });
+      return { redirect: "/api/auth/guest" as const };
     }
 
     if (chat.visibility === "private") {
       if (!session?.user) {
-        throw notFound();
+        return { notFound: true as const };
       }
 
       if (session.user.id !== chat.userId) {
-        throw notFound();
+        return { notFound: true as const };
       }
     }
 
@@ -55,27 +53,29 @@ const loader = createServerFn()
   });
 
 export const Route = createFileRoute("/(chat)/chat/$chatId")({
-  component: Page,
+  component: ChatPage,
+  loader: async ({ params: { chatId } }) => {
+    const result = await fetchChatData({ data: { chatId } });
+
+    if ("notFound" in result) {
+      throw notFound();
+    }
+
+    if (result.redirect) {
+      throw redirect({ to: result.redirect });
+    }
+
+    return result;
+  },
 });
 
-function Page() {
-  return (
-    <Suspense fallback={<div className="flex h-dvh" />}>
-      <ChatPage />
-    </Suspense>
-  );
-}
-
 function ChatPage() {
-  const { chatId } = Route.useParams();
-  const loaderFn = useServerFn(loader);
-
   const {
-    data: { chat, chatModelFromCookie, uiMessages: rawMessages, session },
-  } = useSuspenseQuery({
-    queryKey: ["chat", "chatId", chatId],
-    queryFn: () => loaderFn({ data: { chatId } }),
-  });
+    chat,
+    chatModelFromCookie,
+    uiMessages: rawMessages,
+    session,
+  } = Route.useLoaderData();
 
   const uiMessages = rawMessages as ChatMessage[];
 
