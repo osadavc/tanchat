@@ -1,7 +1,6 @@
-
 import { useChat } from "@ai-sdk/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getRouteApi, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { ChatHeader } from "@/components/chat-header";
@@ -31,8 +30,6 @@ import { MultimodalInput } from "./multimodal-input";
 import { toast } from "./toast";
 import type { VisibilityType } from "./visibility-selector";
 
-const routeApi = getRouteApi("/(chat)/");
-
 export function Chat({
   id,
   initialMessages,
@@ -41,6 +38,7 @@ export function Chat({
   isReadonly,
   autoResume,
   initialLastContext,
+  query,
 }: {
   id: string;
   initialMessages: ChatMessage[];
@@ -49,6 +47,7 @@ export function Chat({
   isReadonly: boolean;
   autoResume: boolean;
   initialLastContext?: AppUsage;
+  query?: string;
 }) {
   const router = useRouter();
 
@@ -134,8 +133,6 @@ export function Chat({
       }
     },
   });
-
-  const { query } = routeApi.useSearch();
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 

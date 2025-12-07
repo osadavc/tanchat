@@ -1,6 +1,5 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getRequestHeaders } from "@tanstack/react-start/server";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "react";
@@ -33,6 +32,7 @@ export const Route = createFileRoute("/(chat)/")({
       query: z.string().optional(),
     })
   ),
+  loader: () => loader(),
 });
 
 function Home() {
@@ -44,14 +44,8 @@ function Home() {
 }
 
 function NewChatPage() {
-  const loaderFn = useServerFn(loader);
-
-  const {
-    data: { id, modelIdFromCookie },
-  } = useSuspenseQuery({
-    queryKey: ["chat", "modelId"],
-    queryFn: () => loaderFn(),
-  });
+  const { modelIdFromCookie, id } = Route.useLoaderData();
+  const { query } = Route.useSearch();
 
   if (!modelIdFromCookie) {
     return (
@@ -64,6 +58,7 @@ function NewChatPage() {
           initialVisibilityType="private"
           isReadonly={false}
           key={id}
+          query={query}
         />
         <DataStreamHandler />
       </>
@@ -80,6 +75,7 @@ function NewChatPage() {
         initialVisibilityType="private"
         isReadonly={false}
         key={id}
+        query={query}
       />
       <DataStreamHandler />
     </>

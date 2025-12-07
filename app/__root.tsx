@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/query-provider";
-import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "./globals.css?url";
 
@@ -34,6 +33,13 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootLayout,
+  notFoundComponent: () => {
+    return (
+      <div className="flex h-dvh items-center justify-center">
+        <h1>Not Found</h1>
+      </div>
+    );
+  },
 });
 
 const LIGHT_THEME_COLOR = "hsl(0 0% 100%)";
@@ -75,20 +81,18 @@ function RootLayout() {
         <HeadContent />
       </head>
       <body className="antialiased">
-        <SessionProvider initialSession={null}>
-          <QueryProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              disableTransitionOnChange
-              enableSystem
-            >
-              <Toaster position="top-center" />
-              <Outlet />
-              <Scripts />
-            </ThemeProvider>
-          </QueryProvider>
-        </SessionProvider>
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            disableTransitionOnChange
+            enableSystem
+          >
+            <Toaster position="top-center" />
+            <Outlet />
+            <Scripts />
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

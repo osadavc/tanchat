@@ -21,7 +21,7 @@ const loader = createServerFn()
     }
 
     const session = await auth.api.getSession({
-      headers: await getRequestHeaders(),
+      headers: getRequestHeaders(),
     });
 
     if (!session) {
