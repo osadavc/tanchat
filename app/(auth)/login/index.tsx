@@ -22,7 +22,7 @@ function Page() {
       password: "",
     },
     validators: {
-      onChange: authFormSchema,
+      onBlur: authFormSchema,
     },
     onSubmit: async ({ value }) => {
       const result = await loginFn({ data: value });
@@ -33,7 +33,8 @@ function Page() {
           description: "Signed in successfully!",
         });
         await refetch();
-        router.invalidate();
+        await router.invalidate();
+        await router.navigate({ to: "/" });
       } else {
         toast({
           type: "error",

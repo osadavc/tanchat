@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "tsx lib/db/migrate && vite build",
     "serve": "vite preview",
     "lint": "npx ultracite@latest check",
     "format": "npx ultracite@latest fix",
