@@ -119,7 +119,6 @@ function ChatPage() {
     return (
       <>
         <Chat
-          autoResume={false}
           id={id}
           initialChatModel={modelId}
           initialMessages={[]}
@@ -145,7 +144,6 @@ function ChatPage() {
     return (
       <>
         <Chat
-          autoResume={true}
           id={chat.id}
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialLastContext={chat.lastContext ?? undefined}
@@ -161,7 +159,6 @@ function ChatPage() {
   return (
     <>
       <Chat
-        autoResume={true}
         id={chat.id}
         initialChatModel={chatModelFromCookie}
         initialLastContext={chat.lastContext ?? undefined}

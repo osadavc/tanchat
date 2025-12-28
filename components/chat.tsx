@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useArtifactSelector } from "@/hooks/use-artifact";
-import { useAutoResume } from "@/hooks/use-auto-resume";
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
 import type { Vote } from "@/lib/db/schema";
 import { ChatSDKError } from "@/lib/errors";
@@ -43,7 +42,6 @@ export function Chat({
   initialChatModel,
   initialVisibilityType,
   isReadonly,
-  autoResume,
   initialLastContext,
   initialPendingMessage,
   onCustomSubmit,
@@ -54,7 +52,6 @@ export function Chat({
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  autoResume: boolean;
   initialLastContext?: AppUsage;
   initialPendingMessage?: PendingMessage;
   onCustomSubmit?: (data: CustomSubmitData) => void;
@@ -89,62 +86,55 @@ export function Chat({
     currentModelIdRef.current = currentModelId;
   }, [currentModelId]);
 
-  const {
-    messages,
-    setMessages,
-    sendMessage,
-    status,
-    stop,
-    regenerate,
-    resumeStream,
-  } = useChat<ChatMessage>({
-    id,
-    messages: initialMessages,
-    experimental_throttle: 100,
-    generateId: generateUUID,
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      fetch: fetchWithErrorHandlers,
-      prepareSendMessagesRequest(request) {
-        return {
-          body: {
-            id: request.id,
-            message: request.messages.at(-1),
-            selectedChatModel: currentModelIdRef.current,
-            selectedVisibilityType: visibilityType,
-            ...request.body,
-          },
-        };
-      },
-    }),
-    onData: (dataPart) => {
-      setDataStream((ds) => (ds ? [...ds, dataPart] : []));
-      if (dataPart.type === "data-usage") {
-        setUsage(dataPart.data);
-      }
-    },
-    onFinish: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.chatHistory });
-
-      if (window.location.search.includes("new=true")) {
-        router.history.replace(`/chat/${id}`);
-      }
-    },
-    onError: (error) => {
-      if (error instanceof ChatSDKError) {
-        if (
-          error.message?.includes("AI Gateway requires a valid credit card")
-        ) {
-          setShowCreditCardAlert(true);
-        } else {
-          toast({
-            type: "error",
-            description: error.message,
-          });
+  const { messages, setMessages, sendMessage, status, stop, regenerate } =
+    useChat<ChatMessage>({
+      id,
+      messages: initialMessages,
+      experimental_throttle: 100,
+      generateId: generateUUID,
+      transport: new DefaultChatTransport({
+        api: "/api/chat",
+        fetch: fetchWithErrorHandlers,
+        prepareSendMessagesRequest(request) {
+          return {
+            body: {
+              id: request.id,
+              message: request.messages.at(-1),
+              selectedChatModel: currentModelIdRef.current,
+              selectedVisibilityType: visibilityType,
+              ...request.body,
+            },
+          };
+        },
+      }),
+      onData: (dataPart) => {
+        setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+        if (dataPart.type === "data-usage") {
+          setUsage(dataPart.data);
         }
-      }
-    },
-  });
+      },
+      onFinish: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.chatHistory });
+
+        if (window.location.search.includes("new=true")) {
+          router.history.replace(`/chat/${id}`);
+        }
+      },
+      onError: (error) => {
+        if (error instanceof ChatSDKError) {
+          if (
+            error.message?.includes("AI Gateway requires a valid credit card")
+          ) {
+            setShowCreditCardAlert(true);
+          } else {
+            toast({
+              type: "error",
+              description: error.message,
+            });
+          }
+        }
+      },
+    });
 
   const hasSentPendingMessageRef = useRef(false);
 
@@ -174,13 +164,6 @@ export function Chat({
 
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
-
-  useAutoResume({
-    autoResume,
-    initialMessages,
-    resumeStream,
-    setMessages,
-  });
 
   return (
     <>

@@ -66,7 +66,6 @@ function NewChatPage() {
   return (
     <>
       <Chat
-        autoResume={false}
         id={id}
         initialChatModel={currentModelId}
         initialMessages={[]}

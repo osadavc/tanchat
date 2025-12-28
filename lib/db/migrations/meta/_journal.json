@@ -8,6 +8,13 @@
       "when": 1765023771862,
       "tag": "0000_init_database",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766943690079,
+      "tag": "0001_remove_resumable_streams_from_db",
+      "breakpoints": true
     }
   ]
 }

@@ -8,10 +8,6 @@ import {
   stepCountIs,
   streamText,
 } from "ai";
-import {
-  createResumableStreamContext,
-  type ResumableStreamContext,
-} from "resumable-stream";
 import type { ModelCatalog } from "tokenlens/core";
 import { fetchModels } from "tokenlens/fetch";
 import { getUsage } from "tokenlens/helpers";
@@ -28,7 +24,6 @@ import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { guestRegex, isProductionEnvironment } from "@/lib/constants";
 import {
-  createStreamId,
   deleteChatById,
   getChatById,
   getMessageCountByUserId,
@@ -45,8 +40,6 @@ import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../-utils/actions";
 import { type PostRequestBody, postRequestBodySchema } from "./-utils/schema";
 
-let globalStreamContext: ResumableStreamContext | null = null;
-
 const getTokenlensCatalog = async (): Promise<ModelCatalog | undefined> => {
   try {
     return await fetchModels();
@@ -55,26 +48,6 @@ const getTokenlensCatalog = async (): Promise<ModelCatalog | undefined> => {
     return; // tokenlens helpers will fall back to defaultCatalog
   }
 };
-
-export function getStreamContext() {
-  if (!globalStreamContext) {
-    try {
-      globalStreamContext = createResumableStreamContext({
-        waitUntil: null,
-      });
-    } catch (error: any) {
-      if (error.message.includes("REDIS_URL")) {
-        console.log(
-          " > Resumable streams are disabled due to missing REDIS_URL"
-        );
-      } else {
-        console.error(error);
-      }
-    }
-  }
-
-  return globalStreamContext;
-}
 
 export const Route = createFileRoute("/(chat)/api/chat/")({
   server: {
@@ -172,9 +145,6 @@ export const Route = createFileRoute("/(chat)/api/chat/")({
               },
             ],
           });
-
-          const streamId = generateUUID();
-          await createStreamId({ streamId, chatId: id });
 
           let finalMergedUsage: AppUsage | undefined;
 
@@ -292,16 +262,6 @@ export const Route = createFileRoute("/(chat)/api/chat/")({
               return "Oops, an error occurred!";
             },
           });
-
-          // const streamContext = getStreamContext();
-
-          // if (streamContext) {
-          //   return new Response(
-          //     await streamContext.resumableStream(streamId, () =>
-          //       stream.pipeThrough(new JsonToSseTransformStream())
-          //     )
-          //   );
-          // }
 
           return new Response(
             stream.pipeThrough(new JsonToSseTransformStream())

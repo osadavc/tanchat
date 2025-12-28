@@ -22,7 +22,6 @@ import { Route as chatApiChatIndexRouteImport } from './app/(chat)/api/chat/inde
 import { Route as authApiAuthSplatRouteImport } from './app/(auth)/api/auth/$'
 import { Route as chatApiFilesUploadIndexRouteImport } from './app/(chat)/api/files/upload/index'
 import { Route as authApiAuthGuestIndexRouteImport } from './app/(auth)/api/auth/guest/index'
-import { Route as chatApiChatIdStreamIndexRouteImport } from './app/(chat)/api/chat/$id/stream/index'
 
 const chatRouteRoute = chatRouteRouteImport.update({
   id: '/(chat)',
@@ -88,12 +87,6 @@ const authApiAuthGuestIndexRoute = authApiAuthGuestIndexRouteImport.update({
   path: '/api/auth/guest/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const chatApiChatIdStreamIndexRoute =
-  chatApiChatIdStreamIndexRouteImport.update({
-    id: '/api/chat/$id/stream/',
-    path: '/api/chat/$id/stream/',
-    getParentRoute: () => chatRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof chatIndexRoute
@@ -108,7 +101,6 @@ export interface FileRoutesByFullPath {
   '/api/vote': typeof chatApiVoteIndexRoute
   '/api/auth/guest': typeof authApiAuthGuestIndexRoute
   '/api/files/upload': typeof chatApiFilesUploadIndexRoute
-  '/api/chat/$id/stream': typeof chatApiChatIdStreamIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof chatIndexRoute
@@ -123,7 +115,6 @@ export interface FileRoutesByTo {
   '/api/vote': typeof chatApiVoteIndexRoute
   '/api/auth/guest': typeof authApiAuthGuestIndexRoute
   '/api/files/upload': typeof chatApiFilesUploadIndexRoute
-  '/api/chat/$id/stream': typeof chatApiChatIdStreamIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,7 +131,6 @@ export interface FileRoutesById {
   '/(chat)/api/vote/': typeof chatApiVoteIndexRoute
   '/(auth)/api/auth/guest/': typeof authApiAuthGuestIndexRoute
   '/(chat)/api/files/upload/': typeof chatApiFilesUploadIndexRoute
-  '/(chat)/api/chat/$id/stream/': typeof chatApiChatIdStreamIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,7 +147,6 @@ export interface FileRouteTypes {
     | '/api/vote'
     | '/api/auth/guest'
     | '/api/files/upload'
-    | '/api/chat/$id/stream'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -172,7 +161,6 @@ export interface FileRouteTypes {
     | '/api/vote'
     | '/api/auth/guest'
     | '/api/files/upload'
-    | '/api/chat/$id/stream'
   id:
     | '__root__'
     | '/(chat)'
@@ -188,7 +176,6 @@ export interface FileRouteTypes {
     | '/(chat)/api/vote/'
     | '/(auth)/api/auth/guest/'
     | '/(chat)/api/files/upload/'
-    | '/(chat)/api/chat/$id/stream/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -292,13 +279,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authApiAuthGuestIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(chat)/api/chat/$id/stream/': {
-      id: '/(chat)/api/chat/$id/stream/'
-      path: '/api/chat/$id/stream'
-      fullPath: '/api/chat/$id/stream'
-      preLoaderRoute: typeof chatApiChatIdStreamIndexRouteImport
-      parentRoute: typeof chatRouteRoute
-    }
   }
 }
 
@@ -311,7 +291,6 @@ interface chatRouteRouteChildren {
   chatApiSuggestionsIndexRoute: typeof chatApiSuggestionsIndexRoute
   chatApiVoteIndexRoute: typeof chatApiVoteIndexRoute
   chatApiFilesUploadIndexRoute: typeof chatApiFilesUploadIndexRoute
-  chatApiChatIdStreamIndexRoute: typeof chatApiChatIdStreamIndexRoute
 }
 
 const chatRouteRouteChildren: chatRouteRouteChildren = {
@@ -323,7 +302,6 @@ const chatRouteRouteChildren: chatRouteRouteChildren = {
   chatApiSuggestionsIndexRoute: chatApiSuggestionsIndexRoute,
   chatApiVoteIndexRoute: chatApiVoteIndexRoute,
   chatApiFilesUploadIndexRoute: chatApiFilesUploadIndexRoute,
-  chatApiChatIdStreamIndexRoute: chatApiChatIdStreamIndexRoute,
 }
 
 const chatRouteRouteWithChildren = chatRouteRoute._addFileChildren(
