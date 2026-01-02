@@ -26,3 +26,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  serverless-redis-http:
+    image: hiett/serverless-redis-http:latest
+    container_name: tanchat-srh
+    restart: unless-stopped
+    ports:
+      - "${SRH_PORT:-8079}:80"
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: ${SRH_TOKEN:-local_development_token}
+      SRH_CONNECTION_STRING: "redis://redis:6379"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  qstash:
+    image: public.ecr.aws/upstash/qstash:latest
+    container_name: tanchat-qstash
+    restart: unless-stopped
+    ports:
+      - "${QSTASH_PORT:-8080}:8080"
+    command: ["qstash", "dev", "-quota", "${QSTASH_QUOTA:-payg}"]
